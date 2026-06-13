@@ -1,1 +1,1104 @@
-<hi>fuck you</h1>
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文化祭抽選システム・専用パッケージ作成ビルダー</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f5f2eb; /* 柔らかい生成り色 */
+            --card-bg: #ffffff; /* 白 */
+            --border-color: #d5cfc1; /* ベージュグレー */
+            --text-primary: #2d2b27; /* ソフトチャコール */
+            --text-secondary: #6e675f; /* マイルドグレー */
+            --accent-primary: #4e6552; /* 落ち着いたアースグリーン */
+            --accent-primary-hover: #3d5040;
+            --accent-secondary: #736353; /* ブラウングレー */
+            --accent-secondary-hover: #605143;
+            --accent-success: #5c7e65; /* 落ち着いたグリーン */
+            --accent-danger: #c85a5a; /* 柔らかいレッド */
+            --accent-danger-hover: #b04848;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans JP', 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            max-width: 800px;
+        }
+
+        h1 {
+            font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--accent-secondary);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(115, 99, 83, 0.05);
+            position: relative;
+        }
+
+        .step-num {
+            display: inline-block;
+            background-color: var(--accent-secondary);
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            letter-spacing: 0.05em;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .step-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .input-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: -2px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="password"],
+        textarea,
+        select {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(78, 101, 82, 0.15);
+        }
+
+        /* テーブルスタイル */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: #ffffff;
+            margin-top: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background-color: #fcfbfa;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-input {
+            width: 100%;
+            padding: 6px 10px;
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .table-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-primary);
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-primary-hover);
+        }
+
+        .btn-success {
+            background-color: var(--accent-success);
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-success:hover {
+            background-color: #4b6853;
+        }
+
+        .btn-danger {
+            background-color: var(--accent-danger);
+            color: white;
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .btn-danger:hover {
+            background-color: var(--accent-danger-hover);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+        }
+
+        .btn-outline:hover {
+            background: #fbfaf8;
+            border-color: var(--accent-secondary);
+        }
+
+        .btn-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .step-action {
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .info-note {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            background-color: #faf9f6;
+            border-left: 3px solid var(--accent-secondary);
+            padding: 10px 14px;
+            margin-top: 15px;
+            border-radius: 0 4px 4px 0;
+            line-height: 1.5;
+        }
+
+        .status-message {
+            font-size: 0.95rem;
+            text-align: center;
+            min-height: 24px;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        .success-text {
+            color: #2e7d32;
+        }
+
+        .error-text {
+            color: #c62828;
+        }
+
+        .loading-text {
+            color: #1565c0;
+        }
+
+        /* 図解用の階層ツリースタイル */
+        .diagram-container {
+            background-color: #fdfdfd;
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            color: #444;
+            line-height: 1.6;
+        }
+
+        .tree-node {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .tree-line {
+            color: #a8a29e;
+        }
+
+        .highlight-exe {
+            background-color: #fef08a;
+            border: 1px solid #facc15;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #713f12;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .highlight-arrow {
+            color: var(--accent-primary);
+            font-weight: bold;
+            animation: bounceLeft 1s infinite alternate;
+            margin-left: 10px;
+        }
+
+        @keyframes bounceLeft {
+            from { transform: translateX(0); }
+            to { transform: translateX(-5px); }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>専用パッケージ作成ビルダー</h1>
+        <p>学校名や店舗設定、パスワードを入力し、その学校専用にカスタマイズされた「文化祭食券抽選＆販売管理システム」パッケージ（ZIP）を自動構築します。</p>
+    </header>
+
+    <div class="container">
+        <!-- 概要説明 -->
+        <div class="card">
+            <h2 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+                はじめに
+            </h2>
+            <p class="step-desc" style="margin-bottom: 0;">
+                このツールは、学校ごとにパーソナライズされた設定パッケージ（ZIPファイル）をブラウザ上で作成するツールです。<br>
+                以下の <strong>STEP 1 〜 STEP 4</strong> の手順に沿ってセットアップを進めてください。
+            </p>
+        </div>
+
+        <!-- STEP 1: システム本体のダウンロード -->
+        <div class="card">
+            <div class="step-num">STEP 1</div>
+            <h2 class="card-title">システム本体（プログラム）のダウンロード</h2>
+            <p class="step-desc">
+                抽選処理をローカルPCで実行するプログラム本体（<code>文化祭抽選システム.exe</code>）をダウンロードします。<br>
+                このプログラムは全校共通の共通ファイルです。
+            </p>
+            <div class="step-action">
+                <a href="#" id="exe_download_btn" class="btn btn-primary" target="_blank">システム本体 (文化祭抽選システム.exe) をダウンロード</a>
+            </div>
+            <div class="info-note">
+                ※ファイルサイズは約113MBあります。ダウンロードが完了するまでお待ちください。<br>
+                ※ダウンロードのリンク先はGoogle Drive等の外部共通ストレージです。
+            </div>
+        </div>
+
+        <!-- STEP 2: あなたの学校専用の設定入力 -->
+        <div class="card">
+            <div class="step-num">STEP 2</div>
+            <h2 class="card-title">学校専用の設定入力</h2>
+            <p class="step-desc">
+                学校名、管理者パスワード、店舗・商品設定、および一般公開用のパスワードを入力してください。
+            </p>
+            
+            <div style="margin-bottom: 25px;">
+                <h3 style="font-size: 1rem; margin-bottom: 12px; color: var(--accent-secondary);">基本設定</h3>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="school_name">学校名 (システム表示名)</label>
+                        <input type="text" id="school_name" value="サンプル高等学校" placeholder="例: サンプル高等学校">
+                        <div class="input-desc">ウェブアプリやダッシュボードのヘッダーに表示される名称です（個人情報を含まないようご注意ください）。</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="admin_password">システム管理者パスワード</label>
+                        <input type="text" id="admin_password" value="admin123" placeholder="英数字">
+                        <div class="input-desc">管理者用総合ダッシュボードの閲覧や販売画面のアクセス認証に使います。</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="view_password">一般生徒ダッシュボードパスワード (任意)</label>
+                        <input type="text" id="view_password" value="" placeholder="空欄なら全員に公開">
+                        <div class="input-desc">一般公開するクラス別ダッシュボードにパスワード制限をかける場合に入力します。</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="max_wishes">投票の最大希望数 (投票可能数)</label>
+                        <input type="number" id="max_wishes" value="6" min="1" max="100">
+                        <div class="input-desc">生徒が投票できる最大希望数です。</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 25px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                <h3 style="font-size: 1rem; margin-bottom: 12px; color: var(--accent-secondary);">生徒番号の入力ルール</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="student_id_type">生徒番号の入力形式パターン</label>
+                        <select id="student_id_type" onchange="onStudentIdTypeChange()">
+                            <option value="num4">半角数字4桁 (例: 0001〜9999)</option>
+                            <option value="num5">半角数字5桁 (例: 00001〜99999)</option>
+                            <option value="num_free">半角数字 (桁数制限なし)</option>
+                            <option value="alphanumeric">半角の英数字とハイフン (例: A012, 3-A-24)</option>
+                            <option value="free">自由入力 (入力制限なし)</option>
+                            <option value="custom">カスタム (上級者向け・正規表現を直接入力)</option>
+                        </select>
+                        <div class="input-desc">スプレッドシートやアプリで生徒に入力させる生徒番号のパターンを選んでください。</div>
+                    </div>
+                    <div class="form-group" id="regex_custom_group" style="display: none;">
+                        <label for="student_id_regex">正規表現ルール (カスタム用)</label>
+                        <input type="text" id="student_id_regex" value="^\d{4}$" placeholder="例: ^\d{4}$ (数字4桁)">
+                        <div class="input-desc">JavaScript互換の正規表現を入力します。</div>
+                    </div>
+                    <div class="form-group" id="help_custom_group">
+                        <label for="student_id_help">エラー時・入力案内メッセージ</label>
+                        <input type="text" id="student_id_help" value="半角数字4桁で入力してください（例: 0012, 1234）。">
+                        <div class="input-desc">ルールと異なる入力をした際、フォームや販売画面で表示される注意案内テキストです。</div>
+                    </div>
+                    <div class="form-group full-width" id="conversion_custom_group" style="display: none;">
+                        <label for="student_id_conversion">アルファベット置換ルール (自動生成されます)</label>
+                        <input type="text" id="student_id_conversion"
+                            value="A:10,B:11,C:12,D:13,E:14,F:15,G:16,H:17,I:18,J:19,K:20,L:21,M:22,N:23,O:24,P:25,Q:26,R:27,S:28,T:29,U:30,V:31,W:32,X:33,Y:34,Z:35"
+                            placeholder="例: A:10,B:11">
+                        <div class="input-desc">
+                            アルファベットが混ざっている生徒番号でも範囲比較ができるように自動で割り当てられる数値マッピングです（通常はこのままでOKです）。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 25px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                <h3 style="font-size: 1rem; margin-bottom: 12px; color: var(--accent-secondary);">クラス別ログインパスワード</h3>
+                <div class="table-container">
+                    <table id="pwd_table">
+                        <thead>
+                            <tr>
+                                <th>クラス名 (例: 3-1)</th>
+                                <th>販売・閲覧ログインパスワード</th>
+                                <th>説明・メモ (任意)</th>
+                                <th style="width: 80px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" class="table-input pwd-class" placeholder="例: 3-1組" value="3-1組"></td>
+                                <td><input type="text" class="table-input pwd-val" placeholder="例: test" value="test"></td>
+                                <td><input type="text" class="table-input pwd-desc" placeholder="メモ" value="3-1組のログイン用"></td>
+                                <td><button class="btn btn-danger" onclick="deleteRow(this)">削除</button></td>
+                            </tr>
+                            <tr>
+                                <td><input type="text" class="table-input pwd-class" placeholder="例: 3-2組" value="3-2組"></td>
+                                <td><input type="text" class="table-input pwd-val" placeholder="例: test" value="test"></td>
+                                <td><input type="text" class="table-input pwd-desc" placeholder="メモ" value="3-2組のログイン用"></td>
+                                <td><button class="btn btn-danger" onclick="deleteRow(this)">削除</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="btn-row">
+                    <div>
+                        <button class="btn btn-outline" onclick="downloadPwdCsvTemplate()" style="margin-right: 10px;">📥 テンプレートCSVダウンロード</button>
+                        <button class="btn btn-outline" onclick="document.getElementById('pwd_csv_file_input').click()">📤 CSVからインポート</button>
+                        <input type="file" id="pwd_csv_file_input" accept=".csv" style="display: none;" onchange="importPwdCsv(this)">
+                    </div>
+                    <button class="btn btn-outline" onclick="addPasswordRow()">＋ パスワード行を追加</button>
+                </div>
+            </div>
+
+            <div style="border-top: 1px solid var(--border-color); padding-top: 20px;">
+                <h3 style="font-size: 1rem; margin-bottom: 12px; color: var(--accent-secondary);">店舗・商品設定</h3>
+                <div class="table-container">
+                    <table id="shop_table">
+                        <thead>
+                            <tr>
+                                <th>クラス番号 (例: 3-1)</th>
+                                <th>食品・販売商品名</th>
+                                <th>販売キャパ (食券枚数)</th>
+                                <th>価格 (円)</th>
+                                <th>商品説明 (任意)</th>
+                                <th style="width: 80px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" class="table-input shop-class" placeholder="例: 3-1組" value="3-1組"></td>
+                                <td><input type="text" class="table-input shop-name" placeholder="例: 焼きそば" value="焼きそば"></td>
+                                <td><input type="number" class="table-input shop-cap" placeholder="例: 150" min="0" value="150"></td>
+                                <td><input type="number" class="table-input shop-price" placeholder="例: 300" min="0" value="300"></td>
+                                <td><input type="text" class="table-input shop-desc" placeholder="例: 美味しい焼きそば店" value="美味しい焼きそば店"></td>
+                                <td><button class="btn btn-danger" onclick="deleteRow(this)">削除</button></td>
+                            </tr>
+                            <tr>
+                                <td><input type="text" class="table-input shop-class" placeholder="例: 3-2組" value="3-2組"></td>
+                                <td><input type="text" class="table-input shop-name" placeholder="例: たこ焼き" value="たこ焼き"></td>
+                                <td><input type="number" class="table-input shop-cap" placeholder="例: 120" min="0" value="120"></td>
+                                <td><input type="number" class="table-input shop-price" placeholder="例: 350" min="0" value="350"></td>
+                                <td><input type="text" class="table-input shop-desc" placeholder="例: アツアツのたこ焼き" value="アツアツのたこ焼き"></td>
+                                <td><button class="btn btn-danger" onclick="deleteRow(this)">削除</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="btn-row">
+                    <div>
+                        <button class="btn btn-outline" onclick="downloadCsvTemplate()" style="margin-right: 10px;">📥 テンプレートCSVダウンロード</button>
+                        <button class="btn btn-outline" onclick="document.getElementById('csv_file_input').click()">📤 CSVからインポート</button>
+                        <input type="file" id="csv_file_input" accept=".csv" style="display: none;" onchange="importCsv(this)">
+                    </div>
+                    <button class="btn btn-outline" onclick="addShopRow()">＋ 店舗を追加</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3: 設定パッケージ（ZIP）の生成 -->
+        <div class="card">
+            <div class="step-num">STEP 3</div>
+            <h2 class="card-title">設定パッケージ（ZIP）の生成と保存</h2>
+            <p class="step-desc">
+                STEP 2で入力した設定情報が組み込まれた、軽量な設定パッケージ（ZIPファイル）を作成します。
+            </p>
+            <div class="step-action">
+                <button class="btn btn-success submit-btn" style="width: 100%; max-width: 400px; padding: 14px 20px; font-size: 1.05rem;" onclick="buildPackage()">専用設定パッケージをビルド & ダウンロード</button>
+            </div>
+            <div id="progress-container" style="display: none; width: 100%; max-width: 400px; background: #e2dcd0; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 15px;">
+                <div id="progress-bar" style="width: 0%; height: 100%; background: var(--accent-success); transition: width 0.1s;"></div>
+            </div>
+            <div id="status" class="status-message"></div>
+        </div>
+
+        <!-- STEP 4: 最終セットアップ（ファイルの配置） -->
+        <div class="card" style="margin-bottom: 60px;">
+            <div class="step-num">STEP 4</div>
+            <h2 class="card-title">最終セットアップ（プログラムファイルの配置）</h2>
+            <p class="step-desc">
+                ダウンロードした設定パッケージを解凍し、STEP 1でダウンロードした <code>文化祭抽選システム.exe</code> を配置します。
+            </p>
+            
+            <div class="diagram-container">
+                <div class="tree-node"><span class="tree-line">📂 [ダウンロードしたZIPを解凍したフォルダ]</span></div>
+                <div class="tree-node"><span class="tree-line">├── 📄 00_新規管理スプレッドシートを作成する.bat</span></div>
+                <div class="tree-node"><span class="tree-line">├── 📂 01_抽選システム</span></div>
+                <div class="tree-node"><span class="tree-line">│    ├── </span><span class="highlight-exe">📁 文化祭抽選システム.exe</span><span class="highlight-arrow">◀── [STEP 1でダウンロードしたexeをここに入れる]</span></div>
+                <div class="tree-node"><span class="tree-line">│    ├── 📄 shop_settings.csv</span></div>
+                <div class="tree-node"><span class="tree-line">│    ├── 📄 class_passwords.csv</span></div>
+                <div class="tree-node"><span class="tree-line">│    └── 📂 src</span></div>
+                <div class="tree-node"><span class="tree-line">├── 📂 02_GASデプロイ用</span></div>
+                <div class="tree-node"><span class="tree-line">└── 📄 README.md</span></div>
+            </div>
+            
+            <div class="info-note" style="margin-top: 20px;">
+                <strong>次に進む手順:</strong><br>
+                上記のようにファイルを配置したら、フォルダ内の <code>README.md</code> を開いてセットアップ手順（スプレッドシートの作成やデプロイ等）に進んでください。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 共通プログラム（文化祭抽選システム.exe）のダウンロード用URL
+        // ※つばき、ここをGoogle DriveやGitHub Release等の実際のダウンロードURLに書き換えてね！
+        const EXE_DOWNLOAD_URL = "https://drive.google.com/file/d/1T9cb-p_AFB7vQIatmet7XXmnO9MYsNlQ/view?usp=sharing";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // STEP 1のダウンロードボタンにURLを代入
+            const downloadBtn = document.getElementById("exe_download_btn");
+            if (downloadBtn) {
+                downloadBtn.href = EXE_DOWNLOAD_URL;
+            }
+            onStudentIdTypeChange();
+        });
+
+        // パターン別正規表現とヘルプテキストのマッピング
+        const PATTERNS = {
+            num4: {
+                regex: "^\\d{4}$",
+                help: "半角数字4桁で入力してください（例: 0012, 1234）。"
+            },
+            num5: {
+                regex: "^\\d{5}$",
+                help: "半角数字5桁で入力してください（例: 00012, 12345）。"
+            },
+            num_free: {
+                regex: "^\\d+$",
+                help: "半角数字で入力してください。"
+            },
+            alphanumeric: {
+                regex: "^[A-Za-z0-9\\-]+$",
+                help: "半角の英数字とハイフンで入力してください（例: A012, 3-A-24）。"
+            },
+            free: {
+                regex: ".*",
+                help: "生徒番号を入力してください。"
+            }
+        };
+
+        function onStudentIdTypeChange() {
+            const select = document.getElementById("student_id_type");
+            const val = select.value;
+            const regexGroup = document.getElementById("regex_custom_group");
+            const conversionGroup = document.getElementById("conversion_custom_group");
+            const helpInput = document.getElementById("student_id_help");
+            const regexInput = document.getElementById("student_id_regex");
+
+            if (val === "custom") {
+                regexGroup.style.display = "flex";
+                conversionGroup.style.display = "flex";
+                regexInput.disabled = false;
+                helpInput.disabled = false;
+            } else {
+                regexGroup.style.display = "none";
+                conversionGroup.style.display = "none";
+                const pattern = PATTERNS[val];
+                if (pattern) {
+                    regexInput.value = pattern.regex;
+                    helpInput.value = pattern.help;
+                }
+            }
+        }
+
+        function deleteRow(btn) {
+            const row = btn.parentNode.parentNode;
+            const table = row.parentNode;
+            if (table.rows.length > 1) {
+                table.removeChild(row);
+            } else {
+                alert("これ以上削除できません。");
+            }
+        }
+
+        function addPasswordRow() {
+            const tbody = document.querySelector("#pwd_table tbody");
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><input type="text" class="table-input pwd-class" placeholder="例: 3-1"></td>
+                <td><input type="text" class="table-input pwd-val" placeholder="例: test"></td>
+                <td><input type="text" class="table-input pwd-desc" placeholder="メモ"></td>
+                <td><button class="btn btn-danger" onclick="deleteRow(this)">削除</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function addShopRow() {
+            const tbody = document.querySelector("#shop_table tbody");
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><input type="text" class="table-input shop-class" placeholder="例: 3-1"></td>
+                <td><input type="text" class="table-input shop-name" placeholder="例: 商品名"></td>
+                <td><input type="number" class="table-input shop-cap" placeholder="例: 100" min="0"></td>
+                <td><input type="number" class="table-input shop-price" placeholder="例: 200" min="0"></td>
+                <td><input type="text" class="table-input shop-desc" placeholder="例: 説明"></td>
+                <td><button class="btn btn-danger" onclick="deleteRow(this)">削除</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        async function buildPackage() {
+            const statusDiv = document.getElementById("status");
+            const progressContainer = document.getElementById("progress-container");
+            const progressBar = document.getElementById("progress-bar");
+
+            statusDiv.className = "status-message loading-text";
+            statusDiv.innerText = "テンプレートパッケージの読み込み中...";
+            progressContainer.style.display = "block";
+            progressBar.style.width = "0%";
+
+            // 1. 各データの収集
+            const school_name = document.getElementById("school_name").value.trim();
+            const admin_password = document.getElementById("admin_password").value.trim();
+            const view_password = document.getElementById("view_password").value.trim();
+            const max_wishes = parseInt(document.getElementById("max_wishes").value) || 6;
+            const student_id_type = document.getElementById("student_id_type").value;
+            const student_id_regex = document.getElementById("student_id_regex").value.trim();
+            const student_id_help = document.getElementById("student_id_help").value.trim();
+            const student_id_conversion = document.getElementById("student_id_conversion").value.trim();
+
+            if (!school_name) {
+                alert("学校名を入力してください。");
+                progressContainer.style.display = "none";
+                statusDiv.innerText = "";
+                return;
+            }
+
+            // クラス別パスワードの収集
+            const class_passwords = [];
+            const pwdRows = document.querySelectorAll("#pwd_table tbody tr");
+            pwdRows.forEach(row => {
+                const class_id = row.querySelector(".pwd-class").value.trim();
+                const password = row.querySelector(".pwd-val").value.trim();
+                const description = row.querySelector(".pwd-desc").value.trim();
+                if (class_id && password) {
+                    class_passwords.push({ class_id, password, description });
+                }
+            });
+
+            // 店舗設定の収集
+            const shops = [];
+            const shopRows = document.querySelectorAll("#shop_table tbody tr");
+            shopRows.forEach(row => {
+                const class_id = row.querySelector(".shop-class").value.trim();
+                const store_name = row.querySelector(".shop-name").value.trim();
+                const ticket_count = parseInt(row.querySelector(".shop-cap").value) || 0;
+                const price = parseInt(row.querySelector(".shop-price").value) || 0;
+                const description = row.querySelector(".shop-desc").value.trim();
+                if (class_id && store_name) {
+                    shops.push({ class_id, store_name, ticket_count, price, description });
+                }
+            });
+
+            try {
+                // 2. テンプレートZIPのフェッチ (進捗表示付き)
+                const response = await fetch("school_lottery_system.zip");
+                if (!response.ok) {
+                    throw new Error("テンプレートZIPの取得に失敗しました。同じフォルダに school_lottery_system.zip が配置されているか確認してください。");
+                }
+
+                const contentLength = response.headers.get('content-length');
+                const total = contentLength ? parseInt(contentLength, 10) : 0;
+                let loaded = 0;
+
+                const reader = response.body.getReader();
+                const chunks = [];
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    chunks.push(value);
+                    loaded += value.length;
+                    if (total > 0) {
+                        const pct = Math.round((loaded / total) * 100);
+                        progressBar.style.width = pct + "%";
+                        statusDiv.innerText = `テンプレートZIPを読み込み中... ${pct}% (${(loaded / 1024).toFixed(0)}KB / ${(total / 1024).toFixed(0)}KB)`;
+                    }
+                }
+
+                statusDiv.innerText = "ZIPアーカイブを解析中...";
+                const blob = new Blob(chunks);
+                const arrayBuffer = await blob.arrayBuffer();
+
+                // JSZipで読み込み
+                const zip = await JSZip.loadAsync(arrayBuffer);
+                statusDiv.innerText = "設定ファイルをカスタマイズ中...";
+
+                // 3. 各テキストファイルの置換・生成処理
+                // --- shop_settings.csv の生成 (BOM付きUTF-8) ---
+                let shopCsvContent = "\uFEFFクラス番号,食品名,販売キャパ（枚数）,価格,説明\r\n";
+                shops.forEach(s => {
+                    shopCsvContent += `${s.class_id},${s.store_name},${s.ticket_count},${s.price},${s.description}\r\n`;
+                });
+                zip.file("school_lottery_system/01_抽選システム/shop_settings.csv", shopCsvContent);
+
+                // --- クラスパスワードのCSV (class_passwords.csv) も生成してZIPに入れる ---
+                let pwdCsvContent = "\uFEFFクラス名,パスワード,説明\r\n";
+                class_passwords.forEach(p => {
+                    pwdCsvContent += `${p.class_id},${p.password},${p.description}\r\n`;
+                });
+                zip.file("school_lottery_system/01_抽選システム/class_passwords.csv", pwdCsvContent);
+
+                // --- README.md の置換とダウンロードURLの挿入 ---
+                const readmeFile = zip.file("school_lottery_system/README.md");
+                if (readmeFile) {
+                    let content = await readmeFile.async("string");
+                    content = content.replaceAll("広島県立広島中学校・高等学校", school_name);
+                    content = content.replaceAll("デモ高等学校", school_name);
+                    content = content.replaceAll("__EXE_DOWNLOAD_URL__", EXE_DOWNLOAD_URL);
+                    zip.file("school_lottery_system/README.md", content);
+                }
+
+                // --- batchファイルの置換 ---
+                const batFile = zip.file("school_lottery_system/00_新規管理スプレッドシートを作成する.bat");
+                if (batFile) {
+                    let content = await batFile.async("string");
+                    content = content.replaceAll("広島県立広島中学校・高等学校", school_name);
+                    content = content.replaceAll("デモ高等学校", school_name);
+                    zip.file("school_lottery_system/00_新規管理スプレッドシートを作成する.bat", content);
+                }
+
+                // --- src/gui.py の置換 ---
+                const guiPyFile = zip.file("school_lottery_system/01_抽選システム/src/gui.py");
+                if (guiPyFile) {
+                    let content = await guiPyFile.async("string");
+                    content = content.replaceAll("デモ高等学校", school_name);
+                    content = content.replaceAll("広島県立広島中学校・高等学校", school_name);
+
+                    // デフォルトの管理者パスワードの置換
+                    content = content.replace('self.admin_pass_var = tk.StringVar(value="admin123")', `self.admin_pass_var = tk.StringVar(value="${admin_password}")`);
+                    content = content.replace('self.view_pass_var = tk.StringVar(value="")', `self.view_pass_var = tk.StringVar(value="${view_password}")`);
+
+                    // クラス別パスワードテキストエリアの初期値置換
+                    const newClassPassStr = class_passwords.map(p => `${p.class_id}:${p.password}`).join("\\n");
+                    content = content.replace('default_class_pass = "3-A:test\\n3-B:test\\n3-C:test"', `default_class_pass = "${newClassPassStr}"`);
+
+                    zip.file("school_lottery_system/01_抽選システム/src/gui.py", content);
+                }
+
+                // --- src/main.py の置換 ---
+                const mainPyFile = zip.file("school_lottery_system/01_抽選システム/src/main.py");
+                if (mainPyFile) {
+                    let content = await mainPyFile.async("string");
+                    content = content.replaceAll("デモ高等学校", school_name);
+                    zip.file("school_lottery_system/01_抽選システム/src/main.py", content);
+                }
+
+                // --- src/lottery.py の置換 ---
+                const lotteryPyFile = zip.file("school_lottery_system/01_抽選システム/src/lottery.py");
+                if (lotteryPyFile) {
+                    let content = await lotteryPyFile.async("string");
+                    content = content.replaceAll("デモ高等学校", school_name);
+                    zip.file("school_lottery_system/01_抽選システム/src/lottery.py", content);
+                }
+
+                // --- GAS Code.gs の置換 ---
+                const codeGsFile = zip.file("school_lottery_system/02_GASデプロイ用/Code.gs");
+                if (codeGsFile) {
+                    let content = await codeGsFile.async("string");
+                    content = content.replaceAll("デモ高等学校", school_name);
+                    content = content.replaceAll("広島県立広島中学校・高等学校", school_name);
+
+                    // 設定値の置換
+                    content = content.replace('["ADMIN_PASSWORD", "admin123",', `["ADMIN_PASSWORD", "${admin_password}",`);
+                    content = content.replace('["VIEW_PASSWORD", "",', `["VIEW_PASSWORD", "${view_password}",`);
+                    content = content.replace('["MAX_WISHES", "6",', `["MAX_WISHES", "${max_wishes}",`);
+                    content = content.replace('["STUDENT_ID_REGEX", "^\\\\d{4}$",', `["STUDENT_ID_REGEX", "${student_id_regex.replace(/\\/g, '\\\\')}",`);
+                    content = content.replace('["STUDENT_ID_HELP", "半角数字4桁で入力してください（例: 0012, 1234）。",', `["STUDENT_ID_HELP", "${student_id_help}",`);
+                    content = content.replace('["STUDENT_ID_CONVERSION", "A:10,B:11,C:12,D:13,E:14,F:15,G:16,H:17,I:18,J:19,K:20,L:21,M:22,N:23,O:24,P:25,Q:26,R:27,S:28,T:29,U:30,V:31,W:32,X:33,Y:34,Z:35",', `["STUDENT_ID_CONVERSION", "${student_id_conversion}",`);
+
+                    // スプレッドシート作成時のデフォルト店舗設定の置換
+                    const shopTarget = 'shopSheet.appendRow(["3-A", "テスト商品1", "100", "300", "サンプル店舗1"]);\r\n    shopSheet.appendRow(["3-B", "テスト商品2", "100", "350", "サンプル店舗2"]);';
+                    let newShopRows = shops.map(s => `    shopSheet.appendRow(["${s.class_id}", "${s.store_name}", "${s.ticket_count}", "${s.price}", "${s.description}"]);`).join("\r\n");
+
+                    // Code.gs の改行コードが CRLF (\r\n) なので、安全のために \r?\n で置換できるように対応
+                    if (!content.includes(shopTarget)) {
+                        const shopTargetLF = 'shopSheet.appendRow(["3-A", "テスト商品1", "100", "300", "サンプル店舗1"]);\n    shopSheet.appendRow(["3-B", "テスト商品2", "100", "350", "サンプル店舗2"]);';
+                        let newShopRowsLF = shops.map(s => `    shopSheet.appendRow(["${s.class_id}", "${s.store_name}", "${s.ticket_count}", "${s.price}", "${s.description}"]);`).join("\n");
+                        content = content.replace(shopTargetLF, newShopRowsLF);
+                    } else {
+                        content = content.replace(shopTarget, newShopRows);
+                    }
+
+                    // スプレッドシート作成時のデフォルトクラスパスワードの置換
+                    const pwdTarget = 'sheet.appendRow(["3-A", "test", "3-Aのログイン用パスワード"]);\r\n    sheet.appendRow(["3-B", "test", "3-Bのログイン用パスワード"]);';
+                    let newPwdRows = class_passwords.map(p => `    sheet.appendRow(["${p.class_id}", "${p.password}", "${p.description}"]);`).join("\r\n");
+
+                    if (!content.includes(pwdTarget)) {
+                        const pwdTargetLF = 'sheet.appendRow(["3-A", "test", "3-Aのログイン用パスワード"]);\n    sheet.appendRow(["3-B", "test", "3-Bのログイン用パスワード"]);';
+                        let newPwdRowsLF = class_passwords.map(p => `    sheet.appendRow(["${p.class_id}", "${p.password}", "${p.description}"]);`).join("\n");
+                        content = content.replace(pwdTargetLF, newPwdRowsLF);
+                    } else {
+                        content = content.replace(pwdTarget, newPwdRows);
+                    }
+
+                    zip.file("school_lottery_system/02_GASデプロイ用/Code.gs", content);
+                }
+
+                // --- GAS html 類の置換 ---
+                const htmlFiles = ["sales.html", "dashboard.html", "admin.html", "dashadmin.html", "index.html"];
+                for (let file of htmlFiles) {
+                    const htmlFile = zip.file(`school_lottery_system/02_GASデプロイ用/${file}`);
+                    if (htmlFile) {
+                        let content = await htmlFile.async("string");
+                        content = content.replaceAll("広島県立広島中学校・高等学校", school_name);
+                        content = content.replaceAll("デモ高等学校", school_name);
+                        zip.file(`school_lottery_system/02_GASデプロイ用/${file}`, content);
+                    }
+                }
+
+                statusDiv.innerText = "専用パッケージ（ZIP）を圧縮して構築中...";
+                progressBar.style.width = "100%";
+
+                // 4. ZIPの再圧縮と配信 (DEFLATEを適用してさらに軽量化)
+                const contentBlob = await zip.generateAsync({
+                    type: "blob",
+                    compression: "DEFLATE",
+                    compressionOptions: { level: 6 }
+                });
+
+                const downloadUrl = window.URL.createObjectURL(contentBlob);
+                const a = document.createElement("a");
+                a.href = downloadUrl;
+                a.download = `${school_name}_lottery_system.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(downloadUrl);
+
+                statusDiv.className = "status-message success-text";
+                statusDiv.innerText = `✅ 専用パッケージ 「${school_name}_lottery_system.zip」 を正常に生成しました！`;
+                progressContainer.style.display = "none";
+
+            } catch (err) {
+                statusDiv.className = "status-message error-text";
+                statusDiv.innerText = `❌ エラー: ${err.message}`;
+                progressContainer.style.display = "none";
+                console.error(err);
+            }
+        }
+
+        function downloadCsvTemplate() {
+            const csvContent = "\uFEFFクラス番号,食品名,販売キャパ（枚数）,価格,説明\r\n3-1組,焼きそば,150,350,サンプル店舗1\r\n3-2組,たこ焼き,120,300,サンプル店舗2\r\n3-3組,チュロス,100,250,サンプル店舗3\r\n";
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "shop_settings_template.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function importCsv(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const text = e.target.result;
+                const lines = text.split(/\r?\n/);
+                if (lines.length <= 1) {
+                    alert("CSVファイルが空か、有効なデータが見つかりませんでした。");
+                    return;
+                }
+
+                const tbody = document.querySelector("#shop_table tbody");
+                tbody.innerHTML = ""; // 既存の行をクリア
+
+                let rowCount = 0;
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+
+                    let cols = line.split(",").map(c => {
+                        let val = c.trim();
+                        if (val.startsWith('="') && val.endsWith('"')) {
+                            val = val.substring(2, val.length - 1);
+                        }
+                        val = val.replace(/^["']|["']$/g, '');
+                        return val.trim();
+                    });
+
+                    if (cols.length < 2) continue;
+
+                    if (i === 1 && cols[0].charCodeAt(0) === 0xFEFF) {
+                        cols[0] = cols[0].substring(1);
+                    }
+
+                    const class_id = cols[0] || "";
+                    const store_name = cols[1] || "";
+                    const ticket_count = cols[2] || "0";
+                    const price = cols[3] || "0";
+                    const description = cols[4] || "";
+
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td><input type="text" class="table-input shop-class" placeholder="例: 3-1" value="${class_id}"></td>
+                        <td><input type="text" class="table-input shop-name" placeholder="例: 商品名" value="${store_name}"></td>
+                        <td><input type="number" class="table-input shop-cap" placeholder="例: 100" min="0" value="${ticket_count}"></td>
+                        <td><input type="number" class="table-input shop-price" placeholder="例: 200" min="0" value="${price}"></td>
+                        <td><input type="text" class="table-input shop-desc" placeholder="例: 説明" value="${description}"></td>
+                        <td><button class="btn btn-danger" onclick="deleteRow(this)">削除</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                    rowCount++;
+                }
+
+                if (rowCount === 0) {
+                    addShopRow();
+                }
+
+                alert(`CSVから ${rowCount} 件の店舗データをインポートしました！`);
+                input.value = "";
+            };
+            reader.readAsText(file, "UTF-8");
+        }
+
+        function downloadPwdCsvTemplate() {
+            const csvContent = "\uFEFFクラス名,パスワード,説明\r\n3-1組,test,3-1組のログイン用パスワード\r\n3-2組,test,3-2組のログイン用パスワード\r\n3-3組,test,3-3組のログイン用パスワード\r\n";
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "class_passwords_template.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function importPwdCsv(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const text = e.target.result;
+                const lines = text.split(/\r?\n/);
+                if (lines.length <= 1) {
+                    alert("CSVファイルが空か、有効なデータが見つかりませんでした。");
+                    return;
+                }
+
+                const tbody = document.querySelector("#pwd_table tbody");
+                tbody.innerHTML = ""; // 既存の行をクリア
+
+                let rowCount = 0;
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+
+                    let cols = line.split(",").map(c => {
+                        let val = c.trim();
+                        if (val.startsWith('="') && val.endsWith('"')) {
+                            val = val.substring(2, val.length - 1);
+                        }
+                        val = val.replace(/^["']|["']$/g, '');
+                        return val.trim();
+                    });
+
+                    if (cols.length < 2) continue;
+
+                    if (i === 1 && cols[0].charCodeAt(0) === 0xFEFF) {
+                        cols[0] = cols[0].substring(1);
+                    }
+
+                    const class_id = cols[0] || "";
+                    const password = cols[1] || "";
+                    const description = cols[2] || "";
+
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td><input type="text" class="table-input pwd-class" placeholder="例: 3-1組" value="${class_id}"></td>
+                        <td><input type="text" class="table-input pwd-val" placeholder="例: test" value="${password}"></td>
+                        <td><input type="text" class="table-input pwd-desc" placeholder="メモ" value="${description}"></td>
+                        <td><button class="btn btn-danger" onclick="deleteRow(this)">削除</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                    rowCount++;
+                }
+
+                if (rowCount === 0) {
+                    addPasswordRow();
+                }
+
+                alert(`CSVから ${rowCount} 件のパスワードデータをインポートしました！`);
+                input.value = "";
+            };
+            reader.readAsText(file, "UTF-8");
+        }
+    </script>
+</body>
+
+</html>
